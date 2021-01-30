@@ -1,0 +1,2 @@
+# KotlinCoroutinesParallelSample
+sample for KotlinCoroutines Parallel
