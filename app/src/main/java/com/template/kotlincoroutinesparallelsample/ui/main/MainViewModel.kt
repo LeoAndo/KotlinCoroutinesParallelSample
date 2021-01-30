@@ -1,21 +1,21 @@
 package com.template.kotlincoroutinesparallelsample.ui.main
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.*
+import androidx.lifecycle.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.system.measureTimeMillis
 
 class MainViewModel : ViewModel() {
-    /*
-    2020-12-07 19:01:19.760 15198-15198/com.template.kotlincoroutinesparallelsample D/MainViewModel: IN
-    2020-12-07 19:01:20.959 15198-15198/com.template.kotlincoroutinesparallelsample D/MainViewModel: onSuccess
-     */
+    private val _timeInMillis = MutableLiveData<Long>()
+
+    val timeInMillis: LiveData<String> = Transformations.map(_timeInMillis) { "処理時間(ms): $it" }
+
     fun doSomethingParallelOn(ms: Long) {
-        Log.d("MainViewModel", "IN")
         viewModelScope.launch {
             kotlin.runCatching {
-                withContext(Dispatchers.IO) {
-                    // https://developer.android.com/kotlin/coroutines-adv?hl=ja#parallel
+                _timeInMillis.value = measureTimeMillis {
                     val deferreds = listOf(
                         async { doSomething(ms) },
                         async { doSomething(ms) },
@@ -25,29 +25,20 @@ class MainViewModel : ViewModel() {
                     )
                     deferreds.awaitAll()
                 }
-            }.onSuccess {
-                Log.d("MainViewModel", "onSuccess")
             }
         }
     }
 
-    /**
-     * 2020-12-07 19:01:45.454 15198-15198/com.template.kotlincoroutinesparallelsample D/MainViewModel: IN
-     * 2020-12-07 19:01:50.469 15198-15198/com.template.kotlincoroutinesparallelsample D/MainViewModel: onSuccess
-     */
     fun doSomethingParallelOff(ms: Long) {
-        Log.d("MainViewModel", "IN")
         viewModelScope.launch {
             kotlin.runCatching {
-                withContext(Dispatchers.IO) {
+                _timeInMillis.value = measureTimeMillis {
                     doSomething(ms)
                     doSomething(ms)
                     doSomething(ms)
                     doSomething(ms)
                     doSomething(ms)
                 }
-            }.onSuccess {
-                Log.d("MainViewModel", "onSuccess")
             }
         }
     }

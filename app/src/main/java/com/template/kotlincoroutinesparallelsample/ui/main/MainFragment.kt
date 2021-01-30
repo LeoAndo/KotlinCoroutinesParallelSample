@@ -1,13 +1,15 @@
 package com.template.kotlincoroutinesparallelsample.ui.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.template.kotlincoroutinesparallelsample.R
 
@@ -36,7 +38,7 @@ class MainFragment : Fragment() {
                 viewModel.doSomethingParallelOn(inputValue)
             }.onFailure {
                 // NumberFormatException
-                Log.e("MainFragment", "message: " + it.message)
+                Toast.makeText(requireContext(), it.message ?: "", Toast.LENGTH_SHORT).show()
             }
         }
         view.findViewById<Button>(R.id.buttonParallelOff).setOnClickListener {
@@ -45,9 +47,13 @@ class MainFragment : Fragment() {
                     view.findViewById<EditText>(R.id.editTextNumberSigned).text.toString().toLong()
                 viewModel.doSomethingParallelOff(inputValue)
             }.onFailure {
-                Log.e("MainFragment", "message: " + it.message)
+                Toast.makeText(requireContext(), it.message ?: "", Toast.LENGTH_SHORT).show()
             }
         }
+
+        viewModel.timeInMillis.observe(viewLifecycleOwner, Observer {
+            view.findViewById<TextView>(R.id.text_result).text = it
+        })
     }
 
 }
